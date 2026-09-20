@@ -1,32 +1,29 @@
-name: Build Path Bloom APK
+name: Build Path Bloom 1.1 Code 2
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ "main", "master" ]
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.10.2'
-
-      - name: Build debug APK
-        run: gradle assembleDebug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+          gradle-version: '8.11.1'
+      - name: Extract preserved release project
+        run: unzip -q path-bloom-1.1-code2-source.zip -d release_project
+      - name: Build release bundle
+        working-directory: release_project
+        run: gradle --no-daemon bundleRelease
+      - uses: actions/upload-artifact@v4
         with:
-          name: Path-Bloom-V43-Android-Test
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: path-bloom-1.1-code2-unsigned-aab
+          path: release_project/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
